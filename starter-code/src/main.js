@@ -25,26 +25,57 @@ var cards = [
   { name: 'thor',            img: 'thor.jpg' }
 ];
 var memoryGame = new MemoryGame(cards);
-
+memoryGame.shuffleCards();
+var primera = true;
+var carta1;
+var carta2;
+var auxCard;
 
 document.addEventListener("DOMContentLoaded", function(event) { 
   var html = '';
   memoryGame.cards.forEach(function (pic) {
     html += '<div class="card" data-card-name="'+ pic.name +'">';
-    html += '  <div class="back" name="'+ pic.img +'"></div>';
-    html += '  <div class="front" style="background: url(img/'+ pic.img +') no-repeat"></div>';
+    html += '<div class="back visible" name="'+ pic.img +'"></div>';
+    html += '<div class="front" style="background: url(img/'+ pic.img +') no-repeat"></div>';
     html += '</div>';
   });
-
-  // Add all the div's to the HTML
   document.querySelector('#memory_board').innerHTML = html;
 
-  // Bind the click event of each element to a function
-  document.querySelectorAll('.back').forEach(function(card) {
+  document.querySelectorAll('.card').forEach(function(card) {
     card.onclick = function() {
-      // TODO: write some code here
-      console.log('Card clicked')
-    }
+      var back = card.querySelector(".back");
+      var front = card.querySelector(".front");
+      back.classList.toggle("visible");
+      front.classList.toggle("visible");
+      
+      if (primera){
+        primera = false;
+        carta1 = card.getAttribute("data-card-name");
+        front.classList.toggle("blocked");
+        auxCard = card;
+      }
+      else {
+        primera = true;
+        carta2 = card.getAttribute("data-card-name");
+        if (memoryGame.checkIfPair(carta1,carta2)) {
+            front.classList.toggle("blocked");
+            document.getElementById('pairs_guessed').innerHTML = memoryGame.pairsGuessed;
+            if (memoryGame.isFinished()) window.alert("HAS GANADO!!");
+        }
+        else{
+          setTimeout(function() {
+            back.classList.toggle("visible");
+            front.classList.toggle("visible");
+            back = auxCard.querySelector(".back");
+            front = auxCard.querySelector(".front");
+            back.classList.toggle("visible");
+            front.classList.toggle("visible");
+            front.classList.toggle("blocked");            
+          }, 1000);
+        }
+        document.getElementById('pairs_clicked').innerHTML = memoryGame.pairsClicked;
+      }
+    };
   });
 });
 
